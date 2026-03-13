@@ -1,6 +1,6 @@
 # Deductly
 
-Deductly is a mobile-first application designed to help gig economy workers track mileage, expenses, and tax deductions automatically.
+Deductly is a mobile-first application designed to help gig economy workers track mileage, expenses, and tax deductions.
 
 Drivers working with platforms like DoorDash, Uber, Lyft, Instacart, and Spark often struggle to keep accurate records for tax deductions. Deductly simplifies this process by providing automated mileage tracking, receipt scanning, and real-time financial insights.
 
@@ -12,11 +12,11 @@ The goal of Deductly is to remove the complexity of bookkeeping for independent 
 
 ### Mileage Tracking
 
-Drivers can start and stop trip tracking directly from the mobile app. GPS tracking automatically calculates miles driven and logs trips for tax deduction purposes.
+Drivers can start and stop trip tracking directly from the mobile app. GPS tracking calculates miles driven and logs trips for tax deduction purposes.
 
 ### Expense Tracking
 
-Users can add and categorize expenses such as fuel, maintenance, supplies, and other deductible costs.
+Users can add and categorize expenses such as fuel, maintenance, supplies, parking, and other deductible costs.
 
 ### Receipt Scanning
 
@@ -27,8 +27,9 @@ Receipts can be scanned using the mobile camera. The system extracts key data su
 Users can quickly view:
 
 * Total miles driven
-* Total deductions
+* Total income
 * Total expenses
+* Estimated deductions
 * Estimated tax liability
 
 ### Tax Estimation
@@ -44,7 +45,7 @@ Deductly operates using a freemium model.
 * Basic mileage tracking
 * Manual expense tracking
 * Limited receipt scans
-* Basic dashboard
+* Basic financial dashboard
 
 **Premium**
 
@@ -53,6 +54,8 @@ Deductly operates using a freemium model.
 * Automatic expense categorization
 * Advanced tax estimation
 * Exportable tax reports
+
+Premium subscriptions are managed through **Apple In-App Purchases (StoreKit)**.
 
 ---
 
@@ -82,9 +85,9 @@ Security features include:
 
 * FastAPI
 * PostgreSQL
-* SQLAlchemy / SQLModel
+* SQLAlchemy
 * Alembic migrations
-* Redis (background tasks)
+* Redis (background jobs)
 
 ### Mobile App
 
@@ -98,7 +101,7 @@ Security features include:
 
 ### Payments
 
-* Stripe subscription billing
+* Apple In-App Purchases (StoreKit)
 
 ---
 
@@ -147,9 +150,9 @@ This architecture allows the backend to support additional clients in the future
 
 ## Phase 5 – Subscription System
 
-* Integrate Stripe billing
-* Implement free vs premium features
-* Add subscription management
+* Configure Apple In-App Purchases
+* Implement free vs premium feature access
+* Validate purchases with backend
 
 ## Phase 6 – Security
 
@@ -182,7 +185,7 @@ This architecture allows the backend to support additional clients in the future
 
 ## Phase 11 – Launch
 
-* Public app store release
+* Public App Store release
 * Initial marketing push
 * User acquisition
 
@@ -196,7 +199,7 @@ Deductly is designed for independent workers including:
 * Uber and Lyft drivers
 * Instacart shoppers
 * Spark drivers
-* Freelancers and contractors
+* Freelancers and independent contractors
 
 ---
 
@@ -215,4 +218,3 @@ Future versions of Deductly may include:
 # License
 
 MIT License
-# Deductly
