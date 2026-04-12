@@ -20,7 +20,7 @@ def generate_2fa_secret(db: Session, user: User):
         db.add(new_2fa)
         db.commit()
 
-        otpauth_url = pyotp.totp.TOTP(secret).provisioning_uri(name=user.email, issuer_name="Deduckly")
+    otpauth_url = pyotp.totp.TOTP(secret).provisioning_uri(name=user.email, issuer_name="Deduckly")
 
     return {
         "secret": secret,
