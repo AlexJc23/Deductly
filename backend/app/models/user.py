@@ -1,6 +1,6 @@
 
 from sqlalchemy import String, Integer, DateTime, Boolean, func, true, false
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from app.db.base import Base
 
 
@@ -24,7 +24,7 @@ class User(Base):
 )
 
     # Relationships
-
+    two_factor = relationship("TwoFactorAuth", back_populates="user", uselist=False)
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', is_active={self.is_active})>"
