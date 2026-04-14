@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
     algorithm: str
     fernet_key: str
+    google_client_id: str
+    google_client_secret: str
+    google_redirect_uri: str
 
     class Config:
         env_file = ".env"

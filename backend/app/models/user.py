@@ -13,7 +13,7 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(500), nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(500), nullable=True)
     is_active = mapped_column(Boolean, server_default=true(), nullable=False)
     email_verified = mapped_column(Boolean, server_default=false(), nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -25,6 +25,7 @@ class User(Base):
 
     # Relationships
     two_factor = relationship("TwoFactorAuth", back_populates="user", uselist=False)
+    oauth_accounts = relationship("UserOAuth", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', is_active={self.is_active})>"

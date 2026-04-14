@@ -39,13 +39,19 @@ def get_user(db: Session, user_id: int) -> User:
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
 
-def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
+def authenticate_user(db: Session, email: str, password: str):
     user = get_user_by_email(db, email)
+
     if not user:
-        return None
+        return None, "invalid_credentials"
+
+    if user.hashed_password is None:
+        return None, "oauth_account"
+
     if not verify_password(password, user.hashed_password):
-        return None
-    return user
+        return None, "invalid_credentials"
+
+    return user, "success"
 
 def update_user(db: Session, user_id: int, user_in: UserUpdate) -> User:
     user = get_user(db, user_id)
