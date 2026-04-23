@@ -10,8 +10,7 @@ class TripBase(BaseModel):
     start_time: datetime
     end_time: datetime
 
-    distance_miles: Decimal
-    income_amount: Optional[Decimal] = None
+    distance_miles: Optional[Decimal] = None
 
     start_lat: Optional[Decimal] = None
     start_lng: Optional[Decimal] = None
@@ -23,7 +22,6 @@ class TripBase(BaseModel):
 
     platform: TripPlatform
     category: TripCategory
-    purpose: Optional[str] = None
 
 
 # 🔹 Create (same as base)
@@ -37,7 +35,6 @@ class TripUpdate(BaseModel):
     end_time: Optional[datetime] = None
 
     distance_miles: Optional[Decimal] = None
-    income_amount: Optional[Decimal] = None
 
     start_lat: Optional[Decimal] = None
     start_lng: Optional[Decimal] = None
@@ -49,7 +46,6 @@ class TripUpdate(BaseModel):
 
     platform: Optional[TripPlatform] = None
     category: Optional[TripCategory] = None
-    purpose: Optional[str] = None
 
 
 # 🔹 Response (clean output)
@@ -58,7 +54,8 @@ class TripResponse(TripBase):
 
     id: int
     user_id: int
-    deduction_amount: Decimal
+    deduction_amount: Optional[Decimal] = None
+    distance_miles: Optional[Decimal] = None
 
     created_at: datetime
     updated_at: datetime

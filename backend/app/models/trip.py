@@ -11,8 +11,6 @@ class Trip(Base):
         UniqueConstraint("user_id", "start_time", "end_time"),
     )
 
-
-
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
 
@@ -26,6 +24,8 @@ class Trip(Base):
 
     start_address: Mapped[str] = mapped_column(String(100), nullable=False)
     end_address: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    distance_miles: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
 
     platform: Mapped[TripPlatform] = mapped_column(SqlEnum(TripPlatform, name="trip_platform"), nullable=False)
@@ -42,6 +42,7 @@ class Trip(Base):
 
     # Relationships
     user = relationship("User", back_populates="trips")
+    income = relationship( "Income", back_populates="trip",uselist=False, cascade="all, delete-orphan" )
 
     def __repr__(self):
         return f"<Trip(id={self.id}, user_id={self.user_id}, platform='{self.platform}', category='{self.category}')>"

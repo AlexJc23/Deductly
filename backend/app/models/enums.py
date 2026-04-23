@@ -15,3 +15,10 @@ class TripPlatform(str, Enum):
 class TripCategory(str, Enum):
     BUSINESS = "business"
     PERSONAL = "personal"
+
+class IncomeType(str, Enum):
+    GIG_PLATFORM = "gig_platform"
+    BUSINESS = "business"
+    EMPLOYMENT = "employment"
+    PASSIVE = "passive"
+    OTHER = "other"
