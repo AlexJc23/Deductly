@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models import Trip
 from app.schemas.v1.trip import TripCreate, TripUpdate
+from app.services.income_service import upsert_income_for_trip
 from fastapi import HTTPException
 from decimal import Decimal
 
@@ -38,6 +39,13 @@ def create_trip(db: Session, trip_in: TripCreate, user_id: int) -> Trip:
     db.add(db_trip)
     db.commit()
     db.refresh(db_trip)
+
+    upsert_income_for_trip(
+        db,
+        trip_id=db_trip.id,
+        user_id=user_id,
+        amount=trip_in.income_amount
+    )
 
     return db_trip
 
@@ -82,6 +90,14 @@ def update_trip(db: Session, trip_id: int, user_id: int, trip_in: TripUpdate) ->
         if field in allowed_fields:
             setattr(trip, field, value)
 
+    if "income_amount" in update_data:
+        upsert_income_for_trip(
+            db,
+            trip_id=trip.id,
+            user_id=user_id,
+            amount=update_data["income_amount"]
+        )
+        
     # 🔥 validate + recalc distance
     if "distance_miles" in update_data:
         distance = trip.distance_miles
@@ -106,6 +122,7 @@ def delete_trip(db: Session, trip_id: int, user_id: int) -> None:
 
     try:
         db.commit()
-    except Exception:
+        return {"message": "Trip deleted"}
+    except Exception as e:
         db.rollback()
-        raise
+        raise HTTPException(status_code=500, detail="Failed to delete trip") from e
