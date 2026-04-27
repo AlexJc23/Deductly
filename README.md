@@ -1,10 +1,10 @@
-# DeducklyHQ
+# Deduckly
 
-DeducklyHQ is a mobile-first application designed to help gig economy workers track mileage, expenses, and tax deductions.
+Deduckly  is a mobile-first application designed to help gig economy workers track mileage, expenses, and tax deductions.
 
 Drivers working with platforms like DoorDash, Uber, Lyft, Instacart, and Spark often struggle to keep accurate records for tax deductions. Deduckly simplifies this process by providing automated mileage tracking, receipt scanning, and real-time financial insights.
 
-The goal of DeducklyHQ is to remove the complexity of bookkeeping for independent contractors while helping users maximize their tax deductions.
+The goal of Deduckly  is to remove the complexity of bookkeeping for independent contractors while helping users maximize their tax deductions.
 
 ---
 
@@ -34,11 +34,11 @@ Users can quickly view:
 
 ### Tax Estimation
 
-DeducklyHQ provides a running estimate of taxes owed based on recorded income, mileage deductions, and expenses.
+Deduckly  provides a running estimate of taxes owed based on recorded income, mileage deductions, and expenses.
 
 ### Subscription Model
 
-DeducklyHQ operates using a freemium model.
+Deduckly  operates using a freemium model.
 
 **Free Tier**
 
@@ -61,7 +61,7 @@ Premium subscriptions are managed through **Apple In-App Purchases (StoreKit)**.
 
 # Security
 
-DeducklyHQ includes secure authentication and optional Two-Factor Authentication (2FA).
+Deduckly  includes secure authentication and optional Two-Factor Authentication (2FA).
 
 Supported authentication methods:
 
@@ -107,7 +107,7 @@ Security features include:
 
 # Architecture
 
-DeducklyHQ uses a client-server architecture.
+Deduckly  uses a client-server architecture.
 
 The mobile application acts as a client that communicates with a centralized API built with FastAPI.
 
@@ -193,7 +193,7 @@ This architecture allows the backend to support additional clients in the future
 
 # Target Users
 
-DeducklyHQ is designed for independent workers including:
+Deduckly  is designed for independent workers including:
 
 * DoorDash drivers
 * Uber and Lyft drivers
@@ -205,7 +205,7 @@ DeducklyHQ is designed for independent workers including:
 
 # Long-Term Vision
 
-Future versions of DeducklyHQ may include:
+Future versions of Deduckly  may include:
 
 * Automated income imports from gig platforms
 * AI-powered expense categorization
