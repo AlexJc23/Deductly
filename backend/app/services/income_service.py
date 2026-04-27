@@ -3,7 +3,7 @@ from app.models import Income, Trip
 from app.schemas.v1.income import IncomeCreate, IncomeUpdate
 from fastapi import HTTPException
 from decimal import Decimal
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 from app.models.enums import IncomeType
 from typing import Optional, List
 
@@ -19,9 +19,25 @@ def get_income(db: Session, income_id: int, user_id: int) -> Income:
 
     return income
 
-def get_incomes_for_user(db: Session, user_id: int) -> List[Income]:
-    return db.query(Income).filter(Income.user_id == user_id).all()
+def get_incomes_for_user(db, user_id, start_date=None, end_date=None, sort="desc"):
+    query = db.query(Income).filter(Income.user_id == user_id)
 
+    # Date filtering
+    if start_date:
+        start_dt = datetime.combine(start_date, time.min)
+        query = query.filter(Income.received_at >= start_dt)
+
+    if end_date:
+        end_dt = datetime.combine(end_date, time.max)
+        query = query.filter(Income.received_at <= end_dt)
+
+    # Sorting
+    if sort == "asc":
+        query = query.order_by(Income.received_at.asc())
+    else:
+        query = query.order_by(Income.received_at.desc())
+
+    return query.all()
 
 
 def create_income(db: Session, income_in: IncomeCreate, user_id: int) -> Income:

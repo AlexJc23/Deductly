@@ -13,7 +13,7 @@ class IncomeBase(BaseModel):
     platform: Optional[TripPlatform] = None
     business_name: Optional[str] = None
 
-    recieved_at: Optional[datetime] = None
+    received_at: Optional[datetime] = None
     notes: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -34,8 +34,10 @@ class IncomeCreate(IncomeBase):
 
 class IncomeUpdate(BaseModel):
     amount: Optional[Decimal] = None
+    received_at: Optional[datetime] = None
     platform: Optional[TripPlatform] = None
     business_name: Optional[str] = None
+    notes : Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -26,7 +26,7 @@ class TripBase(BaseModel):
 
 # 🔹 Create (same as base)
 class TripCreate(TripBase):
-    pass
+    income_amount: Optional[Decimal] = None  # New field for income
 
 
 # 🔹 Update (ALL optional, no inheritance)

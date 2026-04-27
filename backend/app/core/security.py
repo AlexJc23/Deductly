@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -35,8 +35,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + (
-        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(days=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
     to_encode.update({"exp": expire})
@@ -46,8 +46,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + (
-        expires_delta or timedelta(days=9)  # Refresh tokens last longer
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(days=9)
     )
 
     to_encode.update({"exp": expire})
@@ -71,7 +71,7 @@ def decrypt_secret(encrypted_secret: str) -> str:
     return fernet.decrypt(encrypted_secret.encode()).decode()
 
 def create_2fa_token(user_id: int) -> str:
-    expire = datetime.utcnow() + timedelta(minutes=5)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=5)
 
     return jwt.encode(
         {"sub": str(user_id), "type": "2fa", "exp": expire},

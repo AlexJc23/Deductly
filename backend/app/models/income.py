@@ -19,9 +19,6 @@ from app.db.base import Base
 class Income(Base):
     __tablename__ = "income"
 
-    __table_args__ = (
-        UniqueConstraint("user_id", "received_at"),
-    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 

@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from sqlalchemy.orm import Session
 from app.models import Trip
 from app.schemas.v1.trip import TripCreate, TripUpdate
@@ -62,9 +63,24 @@ def get_trip(db: Session, trip_id: int, user_id: int) -> Trip:
     return trip
 
 
-def get_trips_for_user(db: Session, user_id: int):
-    return db.query(Trip).filter(Trip.user_id == user_id).all()
+def get_trips_for_user(db, user_id: int, start_date=None, end_date=None, sort="desc") -> list[Trip]:
 
+    query = db.query(Trip).filter(Trip.user_id == user_id)
+
+    if start_date:
+        start_dt = datetime.combine(start_date, time.min)
+        query = query.filter(Trip.created_at >= start_dt)
+
+    if end_date:
+        end_dt = datetime.combine(end_date, time.max)
+        query = query.filter(Trip.created_at <= end_dt)
+
+    if sort == "asc":
+        query = query.order_by(Trip.created_at.asc())
+    else:
+        query = query.order_by(Trip.created_at.desc())
+
+    return query.all()
 
 def update_trip(db: Session, trip_id: int, user_id: int, trip_in: TripUpdate) -> Trip:
     trip = get_trip(db, trip_id, user_id)
@@ -97,7 +113,7 @@ def update_trip(db: Session, trip_id: int, user_id: int, trip_in: TripUpdate) ->
             user_id=user_id,
             amount=update_data["income_amount"]
         )
-        
+
     # 🔥 validate + recalc distance
     if "distance_miles" in update_data:
         distance = trip.distance_miles

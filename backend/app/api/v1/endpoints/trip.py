@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends
+from datetime import date
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models import Trip, User
 from app.schemas.v1.trip import TripCreate, TripResponse, TripUpdate
 from app.services.trip_service import create_trip, get_trip, get_trips_for_user, update_trip, delete_trip
 from app.api.dependencies.auth import get_current_user
-from fastapi import HTTPException, status
+
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 
@@ -19,10 +22,19 @@ def create_trip_endpoint(
 
 @router.get("/", response_model=list[TripResponse])
 def get_trips(
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    sort: str = "desc",
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return get_trips_for_user(db, current_user.id)
+    return get_trips_for_user(
+        db,
+        current_user.id,
+        start_date=start_date,
+        end_date=end_date,
+        sort=sort
+    )
 
 @router.get("/{trip_id}", response_model=TripResponse)
 def get_trip_by_id(
