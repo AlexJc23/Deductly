@@ -26,6 +26,8 @@ class User(Base):
     # Relationships
     two_factor = relationship("TwoFactorAuth", back_populates="user", uselist=False)
     oauth_accounts = relationship("UserOAuth", back_populates="user")
+    trips = relationship("Trip", back_populates="user", cascade="all, delete-orphan")
+    income = relationship( "Income", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', is_active={self.is_active})>"
