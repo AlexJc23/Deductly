@@ -22,3 +22,17 @@ class IncomeType(str, Enum):
     EMPLOYMENT = "employment"
     PASSIVE = "passive"
     OTHER = "other"
+
+class ExpenseCategory(str, Enum):
+    FOOD = "food"                 # meals, snacks while working
+    TRANSPORT = "transport"       # gas, rideshare, parking
+    VEHICLE = "vehicle"           # maintenance, repairs
+    SUPPLIES = "supplies"         # office, tools, materials
+    SOFTWARE = "software"         # subscriptions, SaaS
+    PHONE = "phone"               # phone bills
+    INTERNET = "internet"         # internet bills
+    MARKETING = "marketing"       # ads, promos
+    EDUCATION = "education"       # courses, books
+    RENT = "rent"                 # workspace (if applicable)
+    UTILITIES = "utilities"       # electricity, etc
+    OTHER = "other"               # catch-all (you will need it)

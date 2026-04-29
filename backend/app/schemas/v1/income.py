@@ -44,7 +44,6 @@ class IncomeUpdate(BaseModel):
 class IncomeResponse(IncomeBase):
     id: int
     user_id: int
-    trip_id: Optional[int] = None
 
     created_at: datetime
     updated_at: datetime
