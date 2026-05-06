@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, func, Numeric, Enum as SqlEnum
+from sqlalchemy import Integer, String, DateTime, ForeignKey, UniqueConstraint, func, Numeric, Enum as SqlEnum
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 from decimal import Decimal
 from app.models.enums import TripPlatform, TripCategory
