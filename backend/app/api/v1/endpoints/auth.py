@@ -1,7 +1,8 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
+import secrets
 
 from app.schemas.v1.oauth import OAuthUserCreate
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends, HTTPException, Cookie
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -9,19 +10,38 @@ from app.db.session import get_db
 from app.schemas.v1.user import UserCreate, UserLogin
 from app.schemas.v1.auth import Enable2FAResponse, Verify2FARequest
 from app.services.user_service import authenticate_user, create_user, get_user, get_user_by_email
-from app.services.auth_services import generate_2fa_secret, verify_2fa_code
-from app.core.security import create_2fa_token, create_access_token, create_refresh_token, decode_access_token
+from app.services.auth_services import generate_2fa_secret, verify_2fa_code, logout_user
+from app.core.security import create_2fa_token, create_access_token, decode_access_token, hash_password
 from app.core.config import settings
 from app.api.dependencies.auth import get_current_user
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from app.models import User, TwoFactorAuth
+from app.models import User, TwoFactorAuth, Session as DBSession
 from app.services.oauth_service import exchange_google_code_for_tokens, get_google_user_info, get_or_create_oauth_user
-from app.services.user_service import get_user, create_user
+
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+
+def create_session(db: Session, user_id: int):
+    refresh_token = secrets.token_urlsafe(64)
+
+    session = DBSession(
+        user_id=user_id,
+        refresh_token=refresh_token,
+        is_revoked=False,
+        created_at=datetime.utcnow(),
+        expires_at=datetime.utcnow() + timedelta(days=7),
+    )
+
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+
+    return refresh_token
+
 
 
 @router.post("/login")
@@ -32,10 +52,7 @@ def login(
     user, status = authenticate_user(db, form_data.username, form_data.password)
 
     if status == "invalid_credentials":
-        raise HTTPException(
-            status_code=401,
-            detail="Incorrect email or password"
-        )
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
 
     if status == "oauth_account":
         raise HTTPException(
@@ -44,10 +61,7 @@ def login(
         )
 
     if status != "success":
-        raise HTTPException(
-            status_code=500,
-            detail="Unexpected authentication error"
-        )
+        raise HTTPException(status_code=500, detail="Unexpected authentication error")
 
     # 2FA check
     two_fa = db.query(TwoFactorAuth).filter(
@@ -62,9 +76,9 @@ def login(
             "access_token": temp_token,
             "token_type": "bearer",
         }
-    # Normal login
+
     access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    refresh_token = create_session(db, user.id)
 
     return {
         "access_token": access_token,
@@ -106,9 +120,11 @@ async def google_callback(code: str, db: Session = Depends(get_db)):
     )
 
     access_token = create_access_token(data={"sub": user.id})
+    refresh_token = create_session(db, user.id)
 
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
     }
 
@@ -128,7 +144,7 @@ def verify_2fa(
     payload = decode_access_token(token)
 
     user_id = payload.get("sub")
-    token_type = payload.get("type")  # "2fa" or None
+    token_type = payload.get("type")
 
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid token payload")
@@ -142,14 +158,12 @@ def verify_2fa(
     if not two_fa:
         raise HTTPException(status_code=400, detail="2FA not configured")
 
-
     if token_type == "2fa":
-
         if not verify_2fa_code(db, user, data.code):
             raise HTTPException(status_code=401, detail="Invalid 2FA code")
 
         access_token = create_access_token(data={"sub": str(user.id)})
-        refresh_token = create_refresh_token(data={"sub": str(user.id)})
+        refresh_token = create_session(db, user.id)
 
         return {
             "access_token": access_token,
@@ -157,28 +171,25 @@ def verify_2fa(
             "token_type": "bearer",
         }
 
-
     if not two_fa.is_enabled:
-
         if not verify_2fa_code(db, user, data.code):
             raise HTTPException(status_code=401, detail="Invalid 2FA code")
 
         two_fa.is_enabled = True
         db.commit()
 
-        return {
-            "message": "2FA enabled successfully"
-        }
-
+        return {"message": "2FA enabled successfully"}
 
     raise HTTPException(status_code=400, detail="Invalid 2FA state")
+
+
 
 @router.post("/register")
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     user = create_user(db, user_in)
 
     access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    refresh_token = create_session(db, user.id)
 
     return {
         "access_token": access_token,
@@ -186,22 +197,66 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         "token_type": "bearer",
     }
 
+
 @router.post("/refresh")
 def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
-    try:
-        payload = decode_access_token(refresh_token)
-        user_id: str = payload.get("sub")
+    session = db.query(DBSession).filter(
+        DBSession.refresh_token == refresh_token
+    ).first()
 
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid refresh token")
+    if not session or session.is_revoked:
+        raise HTTPException(status_code=401, detail="Invalid session")
 
-        new_access_token = create_access_token(data={"sub": user_id})
-        new_refresh_token = create_refresh_token(data={"sub": user_id})
+    user_id = session.user_id
 
-        return {
-            "access_token": new_access_token,
-            "refresh_token": new_refresh_token,
-            "token_type": "bearer",
-        }
-    except HTTPException as e:
-        raise e
+    # rotate session
+    session.is_revoked = True
+
+    new_refresh_token = create_session(db, user_id)
+    new_access_token = create_access_token(data={"sub": str(user_id)})
+
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer",
+    }
+
+
+
+@router.post("/update-password")
+def update_password(
+    old_password: str,
+    new_password: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user = get_user(db, current_user.id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not authenticate_user(db, user.email, old_password)[0]:
+        raise HTTPException(status_code=401, detail="Incorrect old password")
+
+    user.hashed_password = hash_password(new_password)
+
+    # revoke all sessions on password change
+    db.query(DBSession).filter(
+        DBSession.user_id == user.id
+    ).update({"is_revoked": True})
+
+    db.commit()
+
+    return {"message": "Password updated successfully"}
+
+
+
+@router.post("/logout")
+def logout(
+    db: Session = Depends(get_db),
+    refresh_token: str = Cookie(None)
+):
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="Missing refresh token")
+
+    return logout_user(db, refresh_token)

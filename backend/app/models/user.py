@@ -28,13 +28,16 @@ class User(Base):
     )
 
     role: Mapped[UserRole] = mapped_column(
-        SqlEnum(UserRole, name="user_role_enum"),
+        SqlEnum(UserRole,
+            name="user_role_enum",
+            values_callable=lambda obj: [e.value for e in obj]
+        ),
         server_default=text("'user'"),
         nullable=False
     )
 
     filing_status: Mapped[FilingStatus] = mapped_column(
-        SqlEnum(FilingStatus, name="filing_status_enum"),
+        SqlEnum(FilingStatus, name="filingstatus"),
         server_default=text("'single'"),
         nullable=True
     )
@@ -80,6 +83,15 @@ class User(Base):
         cascade="all, delete-orphan",
         lazy="selectin"
     )
+
+    subscriptions = relationship(
+        "Subscription",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
+
+    
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', is_active={self.is_active})>"

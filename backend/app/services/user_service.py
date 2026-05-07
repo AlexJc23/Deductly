@@ -79,15 +79,28 @@ def update_user(db: Session, user_id: int, user_in: UserUpdate) -> User:
     try:
         user = get_user(db, user_id)
 
+        # Update first name
         if user_in.first_name is not None:
             user.first_name = user_in.first_name
 
+        # Update last name
         if user_in.last_name is not None:
             user.last_name = user_in.last_name
 
-        if user_in.password:
-            user.hashed_password = hash_password(user_in.password)
+        # Update email
+        if user_in.email is not None:
 
+            existing_user = get_user_by_email(db, user_in.email)
+
+            if existing_user and existing_user.id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Email already registered"
+                )
+
+            user.email = user_in.email
+
+        # Update filing status
         if user_in.filing_status is not None:
             user.filing_status = user_in.filing_status
 
@@ -101,11 +114,11 @@ def update_user(db: Session, user_id: int, user_in: UserUpdate) -> User:
 
     except SQLAlchemyError:
         db.rollback()
+
         raise HTTPException(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update user"
         )
-
 
 def delete_user(db: Session, user_id: int) -> None:
     try:

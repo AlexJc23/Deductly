@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Numeric, DateTime, CheckConstraint, func, Enum as SqlEnum
+from sqlalchemy import Numeric, DateTime, CheckConstraint, func, Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 from app.models.enums import FilingStatus
@@ -29,7 +29,7 @@ class TaxBracket(Base):
         index=True
     )
 
-    
+
 
     min_income: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     max_income: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)

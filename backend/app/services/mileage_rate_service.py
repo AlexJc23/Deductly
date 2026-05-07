@@ -25,7 +25,7 @@ def get_mileage_rates(db: Session, year: Optional[int] = None) -> List[MileageRa
 def create_mileage_rate(db: Session, rate_in: MileageRateCreate, user: User) -> MileageRate:
     try:
         if user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=403, detail="Only admins can delete tax brackets")
+            raise HTTPException(status_code=403, detail="Only admins can manage mileage rates")
 
         existing = db.query(MileageRate).filter(MileageRate.year == rate_in.year).first()
         if existing:
@@ -61,7 +61,7 @@ def update_mileage_rate(
 ) -> MileageRate:
     try:
         if user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=403, detail="Only admins can delete tax brackets")
+            raise HTTPException(status_code=403, detail="Only admins can manage mileage rates")
 
         rate = db.query(MileageRate).filter(MileageRate.id == rate_id).first()
 
@@ -101,7 +101,7 @@ def update_mileage_rate(
 def delete_mileage_rate(db: Session, rate_id: int, user: User):
     try:
         if user.role != UserRole.ADMIN:
-            raise HTTPException(status_code=403, detail="Only admins can delete tax brackets")
+            raise HTTPException(status_code=403, detail="Only admins can manage mileage rates")
 
         rate = db.query(MileageRate).filter(MileageRate.id == rate_id).first()
 

@@ -3,7 +3,6 @@ from sqlalchemy import (
     String,
     DateTime,
     ForeignKey,
-    UniqueConstraint,
     func,
     Numeric,
     Enum as SqlEnum,

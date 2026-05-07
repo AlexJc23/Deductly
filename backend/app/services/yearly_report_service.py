@@ -1,3 +1,4 @@
+from app.models.milage_rate import MileageRate
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
@@ -10,7 +11,7 @@ from app.models import TaxBracket, User, Expense, Income, Trip
 
 def generate_tax_report(db: Session, user: User, year: int):
     try:
-        mileage_rate = Decimal("0.655")
+        mileage_rate = db.query(func.max(MileageRate.rate)).filter(MileageRate.year == year).scalar() or Decimal("0")
 
         # 💰 totals
         total_income = (
@@ -87,7 +88,8 @@ def generate_tax_report(db: Session, user: User, year: int):
 
         return {
             "year": year,
-            "user_name": getattr(user, "name", "N/A"),
+            "first_name": getattr(user, "first_name", "N/A"),
+            "last_name": getattr(user, "last_name", "N/A"),
             "filing_status": user.filing_status,
             "generated_at": datetime.now(timezone.utc),
 
