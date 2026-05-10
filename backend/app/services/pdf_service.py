@@ -20,7 +20,8 @@ def build_tax_report_pdf(buffer, data):
 
     # Meta info
     c.setFont("Helvetica", 10)
-    c.drawString(150, height - 70, f"User: {data['user_name']}")
+    c.drawString(150, height - 70, f"First Name: {data['first_name']}")
+    c.drawString(150, height - 70, f"Last Name: {data['last_name']}")
     c.drawString(150, height - 85, f"Filing Status: {data['filing_status']}")
     c.drawString(150, height - 100, f"Generated: {data['generated_at']}")
 

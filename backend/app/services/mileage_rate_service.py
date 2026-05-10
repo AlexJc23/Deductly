@@ -9,7 +9,7 @@ from app.schemas.v1.mileage_rate import MileageRateCreate, MileageRateUpdate
 from app.models.enums import UserRole
 
 
-def get_mileage_rates(db: Session, year: Optional[int] = None) -> List[MileageRate]:
+def get_mileage_rates(db: Session, year: int, user: User) -> List[MileageRate]:
     try:
         query = db.query(MileageRate)
 

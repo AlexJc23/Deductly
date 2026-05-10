@@ -89,6 +89,7 @@ def login(
 
 @router.get("/google/login")
 def google_login():
+    
     url = (
         "https://accounts.google.com/o/oauth2/v2/auth"
         "?response_type=code"

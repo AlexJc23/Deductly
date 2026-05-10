@@ -66,6 +66,7 @@ def generate_tax_report(db: Session, user: User, year: int):
             .all()
         )
 
+
         if not tax_brackets:
             raise HTTPException(status_code=404, detail="No tax brackets found")
 
@@ -84,7 +85,6 @@ def generate_tax_report(db: Session, user: User, year: int):
 
             tax_owed += taxable_in_bracket * bracket.rate
             remaining_income -= taxable_in_bracket
-            print(f'filing status here {user.filing_status}')
 
         return {
             "year": year,
